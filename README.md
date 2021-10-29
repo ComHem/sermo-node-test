@@ -41,3 +41,5 @@ Du bör sträva efter så produktionslik kod som möjligt. Genvägar eller före
 ### Inlämning
 
 När du anser dig vara klar, gör en pull request mot detta repo så kikar vi igenom det och bokar in en tidsslot för genomgång tillsammans med dig. Under genomgången kommer vi be dig att gå igenom din applikation som om det vore en överlämning till ett annat team.
+
+hepp
