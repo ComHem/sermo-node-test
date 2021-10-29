@@ -13,19 +13,22 @@ Vi vill att du bygger ett REST API som hanterar CRUD (`create/read/update/delete
   "id": "xxx",                  // user ID (unikt)
   "username": "github",         // username
   "email": "hello@world.com",   // email address
+  "profilePictureUrl": "http://gravatar.com/avatar/sxcvxfadfsa", //Se nedan
+  "topStarredRepositories": [] // Se nedan
 }
 ```
 
-Vid listning av användare vill vi dessutom få ytterligare attribut på en user:
-"profilePictureUrl" - Detta skulle kunna hämtas från t ex Gravatar (se dokumentation https://sv.gravatar.com/site/implement/images/)
-"topStarredRepositories" - Top starred repos från Github för användaren
+## Gravatar
 
-### Funktionalitet
+Vi vill att du hämtar en profilbilds url från Gravatar för användaren. Se dokumentation här https://gravatar.com/site/implement/images/
 
-Vi förväntar oss att följande funktionalitet är implementerad:
+## Github
 
-- APIet följer typiskta RESTful API design patterns
-- Felhantering
+Vi vill att du hämtar top starred repos från Github för användaren (se api.github.com)
+
+## Avgränsningar
+
+- Du behöver inte implementera någon databas.
 
 ### Saker vi tycker är viktiga
 
@@ -33,11 +36,7 @@ _Vi är framförallt intresserade över hur du tar dig an problemet och ditt tan
 
 Använd de bibliotek som du tycker är rimliga att använda om detta var en produktionsapplikation. Vi dock är ute efter din kod och dina tankesätt, inte att se hur många bibliotek du kan använda för att abstrahera bort problemet.
 
-Saker du bör ta med i ditt tankesätt:
-
-- Din kod bör vara ren, tydlig och enkel att extenda vid behov.
-- Stabil testning och testapproach
-- Använd dig av design best practices för ditt API
+Du bör sträva efter så produktionslik kod som möjligt. Genvägar eller förenklingar är helt okej, men då bör du kunna förklara ditt resonemang för oss under genomgång.
 
 ### Inlämning
 
