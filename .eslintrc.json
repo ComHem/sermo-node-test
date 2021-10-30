@@ -1,0 +1,41 @@
+{
+  "plugins": ["@typescript-eslint"],
+  "parser": "@typescript-eslint/parser",
+  "extends": [
+    "eslint:recommended",
+    "plugin:prettier/recommended",
+    "plugin:import/errors",
+    "plugin:import/warnings",
+    "plugin:import/typescript"
+  ],
+  "env": {
+    "node": true
+  },
+  "rules": {
+    // When using native ES modules the file extension is not automatically
+    // resolved, so we have to add '.js' to them so they can be resolved after
+    // transpiling from TS to JS. TypeScript will still find the .ts files even
+    // though we've typed .js.
+    "import/extensions": ["error", "ignorePackages"],
+    // The linter will complain that it can't find the .js files since they're
+    // still .ts, so we have to turn this off. The TypeScript compiler will
+    // throw an error if the module isn't found, so we will still get some
+    // feedback.
+    "import/no-unresolved": ["off"]
+  },
+  "overrides": [
+    {
+      "files": ["*.ts?(x)"],
+      "extends": [
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@typescript-eslint/recommended"
+      ]
+    },
+    {
+      "files": ["**/*.test.{t,j}s?(x)", "__mocks__/**/*"],
+      "env": {
+        "jest": true
+      }
+    }
+  ]
+}
