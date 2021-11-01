@@ -3,7 +3,7 @@ import {server} from '../../index.js';
 import {StatusCodes} from 'http-status-codes';
 import nock from 'nock';
 import {Repo} from '../../utils/getTopStarredRepositories.js';
-import {getUser} from '../../utils/database.js';
+import {getUser, saveUser} from '../../utils/database.js';
 import {ResolvedUser, User} from '../../types/user.js';
 
 jest.mock('../../utils/database.js');
@@ -38,7 +38,15 @@ describe('Create (POST) User', () => {
         email: 'kenneth@kesu.se',
       });
 
-    const expectedUser: ResolvedUser = {
+    const createdUser: User = {
+      id: 'kesu123',
+      username: 'KennethSundqvist',
+      email: 'kenneth@kesu.se',
+    };
+
+    expect(saveUser).toHaveBeenCalledWith(createdUser);
+
+    const returnedUser: ResolvedUser = {
       id: 'kesu123',
       username: 'KennethSundqvist',
       email: 'kenneth@kesu.se',
@@ -48,7 +56,7 @@ describe('Create (POST) User', () => {
     };
 
     expect(res).toHaveProperty('status', StatusCodes.OK);
-    expect(res.body).toEqual(expectedUser);
+    expect(res.body).toEqual(returnedUser);
   });
 
   test('User already exists', async () => {
@@ -127,7 +135,7 @@ describe('Create (POST) User', () => {
         email: 'kenneth@kesu.se',
       });
 
-    const expectedUser: ResolvedUser = {
+    const returnedUser: ResolvedUser = {
       id: 'kesu123',
       username: 'KennethSundqvist',
       email: 'kenneth@kesu.se',
@@ -137,7 +145,7 @@ describe('Create (POST) User', () => {
     };
 
     expect(res).toHaveProperty('status', StatusCodes.OK);
-    expect(res.body).toEqual(expectedUser);
+    expect(res.body).toEqual(returnedUser);
   });
 
   test('Incorrect accept header', async () => {

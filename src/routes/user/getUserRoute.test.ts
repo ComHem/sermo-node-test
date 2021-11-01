@@ -40,7 +40,7 @@ describe('Read (GET) User', () => {
       .get('/user/ kesu123')
       .set('Accept', 'application/json');
 
-    const expectedUser: ResolvedUser = {
+    const returnedUser: ResolvedUser = {
       id: 'kesu123',
       username: 'KennethSundqvist',
       email: 'kenneth@kesu.se',
@@ -50,7 +50,7 @@ describe('Read (GET) User', () => {
     };
 
     expect(res).toHaveProperty('status', StatusCodes.OK);
-    expect(res.body).toEqual(expectedUser);
+    expect(res.body).toEqual(returnedUser);
   });
 
   test("User doesn't exists", async () => {
@@ -78,7 +78,7 @@ describe('Read (GET) User', () => {
       .get('/user/kesu123')
       .set('Accept', 'application/json');
 
-    const expectedUser: ResolvedUser = {
+    const returnedUser: ResolvedUser = {
       id: 'kesu123',
       username: 'KennethSundqvist',
       email: 'kenneth@kesu.se',
@@ -88,7 +88,7 @@ describe('Read (GET) User', () => {
     };
 
     expect(res).toHaveProperty('status', StatusCodes.OK);
-    expect(res.body).toEqual(expectedUser);
+    expect(res.body).toEqual(returnedUser);
   });
 
   test('Incorrect accept header', async () => {

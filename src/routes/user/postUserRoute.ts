@@ -1,8 +1,8 @@
 import express from 'express';
 import {StatusCodes} from 'http-status-codes';
-import {ResolvedUser} from '../../types/user.js';
+import {ResolvedUser, User} from '../../types/user.js';
 import {assertRequestType} from '../../utils/assertRequestType.js';
-import {getUser} from '../../utils/database.js';
+import {getUser, saveUser} from '../../utils/database.js';
 import {getProfilePictureUrl} from '../../utils/getProfilePictureUrl.js';
 import {getTopStarredRepositories} from '../../utils/getTopStarredRepositories.js';
 import {validateEmail} from '../../utils/validators/validateEmail.js';
@@ -66,16 +66,26 @@ postUserRoute.post('/user', async (req, res) => {
   }
 
   /**
-   * Return user.
+   * Save user.
    */
 
-  const user: ResolvedUser = {
+  const newUser: User = {
     id,
     username,
     email,
+  };
+
+  await saveUser(newUser);
+
+  /**
+   * Return user.
+   */
+
+  const resolvedUser: ResolvedUser = {
+    ...newUser,
     profilePictureUrl: getProfilePictureUrl(email),
     topStarredRepositories: await getTopStarredRepositories(username),
   };
 
-  res.send(user);
+  res.send(resolvedUser);
 });
