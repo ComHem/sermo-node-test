@@ -5,6 +5,7 @@ import {getEnv} from './utils/getEnv.js';
 import {deleteUserRoute} from './routes/user/deleteUserRoute.js';
 import {getUserRoute} from './routes/user/getUserRoute.js';
 import {postUserRoute} from './routes/user/postUserRoute.js';
+import {patchUserRoute} from './routes/user/patchUserRoute.js';
 
 const NODE_ENV = getEnv('NODE_ENV');
 const HOST = getEnv('HOST');
@@ -32,6 +33,7 @@ if (NODE_ENV === 'development') {
 
 server.use(postUserRoute);
 server.use(getUserRoute);
+server.use(patchUserRoute);
 server.use(deleteUserRoute);
 
 /**

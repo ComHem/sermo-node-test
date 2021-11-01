@@ -6,7 +6,7 @@ export const deleteUserRoute = express.Router();
 
 deleteUserRoute.delete('/user/:id', async (req, res) => {
   /**
-   * Input.
+   * Params.
    */
 
   let {id = ''} = req.params;

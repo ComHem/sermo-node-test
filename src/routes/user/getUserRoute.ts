@@ -14,7 +14,7 @@ getUserRoute.get('/user/:id', async (req, res) => {
   }
 
   /**
-   * Input.
+   * Params.
    */
 
   let {id = ''} = req.params;
