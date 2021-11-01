@@ -2,13 +2,13 @@ import express from 'express';
 import {StatusCodes} from 'http-status-codes';
 import {ResolvedUser} from '../../types/user.js';
 import {assertRequestType} from '../../utils/assertRequestType.js';
-import {getUser} from '../../utils/database.js';
+import {getUser as getDbUser} from '../../utils/database.js';
 import {getProfilePictureUrl} from '../../utils/getProfilePictureUrl.js';
 import {getTopStarredRepositories} from '../../utils/getTopStarredRepositories.js';
 
-export const getUserRoute = express.Router();
+export const getUser = express.Router();
 
-getUserRoute.get('/user/:id', async (req, res) => {
+getUser.get('/:id', async (req, res) => {
   if (!assertRequestType(req, res, {accept: ['application/json']})) {
     return;
   }
@@ -24,7 +24,7 @@ getUserRoute.get('/user/:id', async (req, res) => {
    * Get user.
    */
 
-  const existingUser = await getUser(id);
+  const existingUser = await getDbUser(id);
 
   if (!existingUser) {
     res.status(StatusCodes.NOT_FOUND).end();

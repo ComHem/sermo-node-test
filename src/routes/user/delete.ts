@@ -1,10 +1,10 @@
 import express from 'express';
 import {StatusCodes} from 'http-status-codes';
-import {deleteUser} from '../../utils/database.js';
+import {deleteUser as deleteDbUser} from '../../utils/database.js';
 
-export const deleteUserRoute = express.Router();
+export const deleteUser = express.Router();
 
-deleteUserRoute.delete('/user/:id', async (req, res) => {
+deleteUser.delete('/:id', async (req, res) => {
   /**
    * Params.
    */
@@ -16,7 +16,7 @@ deleteUserRoute.delete('/user/:id', async (req, res) => {
    * Delete user.
    */
 
-  const error = await deleteUser(id);
+  const error = await deleteDbUser(id);
 
   if (error) {
     const status =

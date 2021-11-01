@@ -6,16 +6,17 @@ import {getUser, saveUser} from '../../utils/database.js';
 import {getProfilePictureUrl} from '../../utils/getProfilePictureUrl.js';
 import {getTopStarredRepositories} from '../../utils/getTopStarredRepositories.js';
 import {validateEmail} from '../../utils/validators/validateEmail.js';
+import {validateRequired} from '../../utils/validators/validateRequired.js';
 
-export const patchUserRoute = express.Router();
+export const postUser = express.Router();
 
 interface ErrorBody {
+  id?: string;
+  username?: string;
   email?: string;
 }
 
-const validKeys = ['username', 'email'];
-
-patchUserRoute.patch('/user/:id', async (req, res) => {
+postUser.post('/', async (req, res) => {
   if (
     !assertRequestType(req, res, {
       accept: ['application/json'],
@@ -26,42 +27,25 @@ patchUserRoute.patch('/user/:id', async (req, res) => {
   }
 
   /**
-   * Params.
-   */
-
-  let {id = ''} = req.params;
-  id = id.trim();
-
-  /**
    * Validate input.
    */
 
-  const invalidKeys = Object.keys(req.body).filter(
-    (key) => !validKeys.includes(key),
-  );
+  let {id = '', username = '', email = ''} = req.body;
 
-  if (invalidKeys.length) {
-    res
-      .status(StatusCodes.BAD_REQUEST)
-      .send(
-        `Cannot patch the following properties on a User: ${invalidKeys.join(
-          ', ',
-        )}`,
-      );
-    return;
-  }
-
-  let {username = '', email = ''} = req.body;
-
+  id = id.trim();
   username = username.trim();
   email = email.trim();
 
+  // TODO: Validate string format of "id".
+  const idError = validateRequired(id);
   // TODO: Validate string format of "username".
+  const usernameError = validateRequired(username);
+  const emailError = validateEmail(email);
 
-  const emailError = validateEmail(email, false);
-
-  if (emailError) {
+  if (idError || usernameError || emailError) {
     const body: ErrorBody = {};
+    if (idError) body.id = idError.message;
+    if (usernameError) body.username = usernameError.message;
     if (emailError) body.email = emailError.message;
     res.status(StatusCodes.UNPROCESSABLE_ENTITY).send(body);
     return;
@@ -73,32 +57,34 @@ patchUserRoute.patch('/user/:id', async (req, res) => {
 
   const existingUser = await getUser(id);
 
-  if (!existingUser) {
-    res.status(StatusCodes.NOT_FOUND).end();
+  if (existingUser) {
+    const body: ErrorBody = {
+      id: `A user with ID "${id}" already exists`,
+    };
+    res.status(StatusCodes.BAD_REQUEST).send(body);
     return;
   }
 
   /**
-   * Patch user.
+   * Save user.
    */
 
-  const patchedUser: User = {...existingUser};
+  const newUser: User = {
+    id,
+    username,
+    email,
+  };
 
-  if (username) patchedUser.username = username;
-  if (email) patchedUser.email = email;
-
-  await saveUser(patchedUser);
+  await saveUser(newUser);
 
   /**
    * Return user.
    */
 
   const resolvedUser: ResolvedUser = {
-    ...patchedUser,
-    profilePictureUrl: getProfilePictureUrl(patchedUser.email),
-    topStarredRepositories: await getTopStarredRepositories(
-      patchedUser.username,
-    ),
+    ...newUser,
+    profilePictureUrl: getProfilePictureUrl(email),
+    topStarredRepositories: await getTopStarredRepositories(username),
   };
 
   res.send(resolvedUser);

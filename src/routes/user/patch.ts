@@ -6,17 +6,16 @@ import {getUser, saveUser} from '../../utils/database.js';
 import {getProfilePictureUrl} from '../../utils/getProfilePictureUrl.js';
 import {getTopStarredRepositories} from '../../utils/getTopStarredRepositories.js';
 import {validateEmail} from '../../utils/validators/validateEmail.js';
-import {validateRequired} from '../../utils/validators/validateRequired.js';
 
-export const postUserRoute = express.Router();
+export const patchUser = express.Router();
 
 interface ErrorBody {
-  id?: string;
-  username?: string;
   email?: string;
 }
 
-postUserRoute.post('/user', async (req, res) => {
+const validKeys = ['username', 'email'];
+
+patchUser.patch('/:id', async (req, res) => {
   if (
     !assertRequestType(req, res, {
       accept: ['application/json'],
@@ -27,25 +26,42 @@ postUserRoute.post('/user', async (req, res) => {
   }
 
   /**
+   * Params.
+   */
+
+  let {id = ''} = req.params;
+  id = id.trim();
+
+  /**
    * Validate input.
    */
 
-  let {id = '', username = '', email = ''} = req.body;
+  const invalidKeys = Object.keys(req.body).filter(
+    (key) => !validKeys.includes(key),
+  );
 
-  id = id.trim();
+  if (invalidKeys.length) {
+    res
+      .status(StatusCodes.BAD_REQUEST)
+      .send(
+        `Cannot patch the following properties on a User: ${invalidKeys.join(
+          ', ',
+        )}`,
+      );
+    return;
+  }
+
+  let {username = '', email = ''} = req.body;
+
   username = username.trim();
   email = email.trim();
 
-  // TODO: Validate string format of "id".
-  const idError = validateRequired(id);
   // TODO: Validate string format of "username".
-  const usernameError = validateRequired(username);
-  const emailError = validateEmail(email);
 
-  if (idError || usernameError || emailError) {
+  const emailError = validateEmail(email, false);
+
+  if (emailError) {
     const body: ErrorBody = {};
-    if (idError) body.id = idError.message;
-    if (usernameError) body.username = usernameError.message;
     if (emailError) body.email = emailError.message;
     res.status(StatusCodes.UNPROCESSABLE_ENTITY).send(body);
     return;
@@ -57,34 +73,32 @@ postUserRoute.post('/user', async (req, res) => {
 
   const existingUser = await getUser(id);
 
-  if (existingUser) {
-    const body: ErrorBody = {
-      id: `A user with ID "${id}" already exists`,
-    };
-    res.status(StatusCodes.BAD_REQUEST).send(body);
+  if (!existingUser) {
+    res.status(StatusCodes.NOT_FOUND).end();
     return;
   }
 
   /**
-   * Save user.
+   * Patch user.
    */
 
-  const newUser: User = {
-    id,
-    username,
-    email,
-  };
+  const patchedUser: User = {...existingUser};
 
-  await saveUser(newUser);
+  if (username) patchedUser.username = username;
+  if (email) patchedUser.email = email;
+
+  await saveUser(patchedUser);
 
   /**
    * Return user.
    */
 
   const resolvedUser: ResolvedUser = {
-    ...newUser,
-    profilePictureUrl: getProfilePictureUrl(email),
-    topStarredRepositories: await getTopStarredRepositories(username),
+    ...patchedUser,
+    profilePictureUrl: getProfilePictureUrl(patchedUser.email),
+    topStarredRepositories: await getTopStarredRepositories(
+      patchedUser.username,
+    ),
   };
 
   res.send(resolvedUser);
