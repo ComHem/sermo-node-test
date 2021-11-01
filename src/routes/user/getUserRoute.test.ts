@@ -1,13 +1,13 @@
 import supertest from 'supertest';
-import {server} from '../index.js';
+import {server} from '../../index.js';
 import {StatusCodes} from 'http-status-codes';
 import nock from 'nock';
-import {Repo} from '../utils/getTopStarredRepositories.js';
-import {getUser} from '../utils/database.js';
-import {User, ResolvedUser} from '../types/user.js';
+import {Repo} from '../../utils/getTopStarredRepositories.js';
+import {getUser} from '../../utils/database.js';
+import {User, ResolvedUser} from '../../types/user.js';
 
-jest.mock('../utils/database.js');
-jest.mock('../utils/log.js');
+jest.mock('../../utils/database.js');
+jest.mock('../../utils/log.js');
 
 afterEach(() => {
   jest.resetAllMocks();

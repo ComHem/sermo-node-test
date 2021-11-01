@@ -1,9 +1,10 @@
 import {log} from './utils/log.js';
 import express, {ErrorRequestHandler} from 'express';
 import {StatusCodes} from 'http-status-codes';
-import {postUserRoute} from './routes/postUser.js';
 import {getEnv} from './utils/getEnv.js';
-import {getUserRoute} from './routes/getUser.js';
+import {deleteUserRoute} from './routes/user/deleteUserRoute.js';
+import {getUserRoute} from './routes/user/getUserRoute.js';
+import {postUserRoute} from './routes/user/postUserRoute.js';
 
 const NODE_ENV = getEnv('NODE_ENV');
 const HOST = getEnv('HOST');
@@ -31,6 +32,7 @@ if (NODE_ENV === 'development') {
 
 server.use(postUserRoute);
 server.use(getUserRoute);
+server.use(deleteUserRoute);
 
 /**
  * Error handling.

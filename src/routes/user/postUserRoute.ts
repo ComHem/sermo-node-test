@@ -1,12 +1,12 @@
 import express from 'express';
 import {StatusCodes} from 'http-status-codes';
-import {ResolvedUser} from '../types/user.js';
-import {assertRequestType} from '../utils/assertRequestType.js';
-import {getUser} from '../utils/database.js';
-import {getProfilePictureUrl} from '../utils/getProfilePictureUrl.js';
-import {getTopStarredRepositories} from '../utils/getTopStarredRepositories.js';
-import {validateEmail} from '../utils/validators/validateEmail.js';
-import {validateRequired} from '../utils/validators/validateRequired.js';
+import {ResolvedUser} from '../../types/user.js';
+import {assertRequestType} from '../../utils/assertRequestType.js';
+import {getUser} from '../../utils/database.js';
+import {getProfilePictureUrl} from '../../utils/getProfilePictureUrl.js';
+import {getTopStarredRepositories} from '../../utils/getTopStarredRepositories.js';
+import {validateEmail} from '../../utils/validators/validateEmail.js';
+import {validateRequired} from '../../utils/validators/validateRequired.js';
 
 export const postUserRoute = express.Router();
 

@@ -1,10 +1,10 @@
 import express from 'express';
 import {StatusCodes} from 'http-status-codes';
-import {ResolvedUser} from '../types/user.js';
-import {assertRequestType} from '../utils/assertRequestType.js';
-import {getUser} from '../utils/database.js';
-import {getProfilePictureUrl} from '../utils/getProfilePictureUrl.js';
-import {getTopStarredRepositories} from '../utils/getTopStarredRepositories.js';
+import {ResolvedUser} from '../../types/user.js';
+import {assertRequestType} from '../../utils/assertRequestType.js';
+import {getUser} from '../../utils/database.js';
+import {getProfilePictureUrl} from '../../utils/getProfilePictureUrl.js';
+import {getTopStarredRepositories} from '../../utils/getTopStarredRepositories.js';
 
 export const getUserRoute = express.Router();
 
