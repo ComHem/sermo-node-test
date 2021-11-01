@@ -1,4 +1,5 @@
-import express from 'express';
+import express, {ErrorRequestHandler} from 'express';
+import {StatusCodes} from 'http-status-codes';
 import {userRouter} from './routes/user.js';
 import {getEnv} from './utils/getEnv.js';
 
@@ -27,6 +28,28 @@ if (NODE_ENV === 'development') {
 }
 
 server.use(userRouter);
+
+/**
+ * Error handling.
+ */
+
+const errorRequestHandler: ErrorRequestHandler = (error, req, res, next) => {
+  if (res.headersSent) {
+    next(error);
+  } else {
+    // TODO: Use structured logging.
+    console.log(error);
+
+    if (getEnv('NODE_ENV') === 'production') {
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
+      res.end();
+    } else {
+      res.status(error.statusCode).send(error.stack);
+    }
+  }
+};
+
+server.use(errorRequestHandler);
 
 /**
  * Start server.
