@@ -1,6 +1,8 @@
 import nock from 'nock';
 import {getTopStarredRepositories, Repo} from './getTopStarredRepositories.js';
 
+jest.mock('./log.js');
+
 const username = 'KennethSundqvist';
 
 function mockRequest(repos: Repo[]) {

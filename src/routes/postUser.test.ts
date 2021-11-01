@@ -1,12 +1,13 @@
 import supertest from 'supertest';
 import {server} from '../index.js';
 import {StatusCodes} from 'http-status-codes';
-import {User} from './user.js';
 import nock from 'nock';
 import {Repo} from '../utils/getTopStarredRepositories.js';
 import {getUser} from '../utils/database.js';
+import {ResolvedUser, User} from '../types/user.js';
 
 jest.mock('../utils/database.js');
+jest.mock('../utils/log.js');
 
 afterEach(() => {
   jest.resetAllMocks();
@@ -37,7 +38,7 @@ describe('Create (POST) User', () => {
         email: 'kenneth@kesu.se',
       });
 
-    const expectedUser: User = {
+    const expectedUser: ResolvedUser = {
       id: 'kesu123',
       username: 'KennethSundqvist',
       email: 'kenneth@kesu.se',
@@ -55,9 +56,6 @@ describe('Create (POST) User', () => {
       id: 'kesu123',
       username: 'KennethSundqvist',
       email: 'kenneth@kesu.se',
-      profilePictureUrl:
-        'https://gravatar.com/avatar/a282d3c5e1f6cea30064dd6ba0a9810e',
-      topStarredRepositories: ['two', 'one'],
     };
 
     (getUser as unknown as jest.Mock).mockReturnValue(existingUser);
@@ -115,10 +113,6 @@ describe('Create (POST) User', () => {
   });
 
   test('Fails gracefully and returns the rest of the user data when the top starred repositories are unavailable', async () => {
-    // Avoid logging in tests. Replace console.log with a log util and stub that in the tests.
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    jest.spyOn(console, 'log').mockImplementation(() => {});
-
     nock('https://api.github.com')
       .get('/users/KennethSundqvist/repos')
       .reply(404);
@@ -133,7 +127,7 @@ describe('Create (POST) User', () => {
         email: 'kenneth@kesu.se',
       });
 
-    const expectedUser: User = {
+    const expectedUser: ResolvedUser = {
       id: 'kesu123',
       username: 'KennethSundqvist',
       email: 'kenneth@kesu.se',

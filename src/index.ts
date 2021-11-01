@@ -1,7 +1,9 @@
+import {log} from './utils/log.js';
 import express, {ErrorRequestHandler} from 'express';
 import {StatusCodes} from 'http-status-codes';
-import {userRouter} from './routes/user.js';
+import {postUserRoute} from './routes/postUser.js';
 import {getEnv} from './utils/getEnv.js';
+import {getUserRoute} from './routes/getUser.js';
 
 const NODE_ENV = getEnv('NODE_ENV');
 const HOST = getEnv('HOST');
@@ -27,7 +29,8 @@ if (NODE_ENV === 'development') {
   server.use('/_coverage', express.static('build/coverage/lcov-report'));
 }
 
-server.use(userRouter);
+server.use(postUserRoute);
+server.use(getUserRoute);
 
 /**
  * Error handling.
@@ -37,8 +40,7 @@ const errorRequestHandler: ErrorRequestHandler = (error, req, res, next) => {
   if (res.headersSent) {
     next(error);
   } else {
-    // TODO: Use structured logging.
-    console.log(error);
+    log(error);
 
     if (getEnv('NODE_ENV') === 'production') {
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).end();
@@ -68,6 +70,6 @@ if (isEsModuleRunByNode) {
     if (address && typeof address !== 'string') {
       address = `http://${address.address}:${address.port}`;
     }
-    console.log(`Server started, listening on ${address}`);
+    log(`Server started, listening on ${address}`);
   });
 }

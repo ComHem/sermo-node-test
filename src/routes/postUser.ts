@@ -1,5 +1,6 @@
 import express from 'express';
 import {StatusCodes} from 'http-status-codes';
+import {ResolvedUser} from '../types/user.js';
 import {assertRequestType} from '../utils/assertRequestType.js';
 import {getUser} from '../utils/database.js';
 import {getProfilePictureUrl} from '../utils/getProfilePictureUrl.js';
@@ -7,15 +8,7 @@ import {getTopStarredRepositories} from '../utils/getTopStarredRepositories.js';
 import {validateEmail} from '../utils/validators/validateEmail.js';
 import {validateRequired} from '../utils/validators/validateRequired.js';
 
-export const userRouter = express.Router();
-
-export interface User {
-  id: string;
-  username: string;
-  email: string;
-  profilePictureUrl: string;
-  topStarredRepositories: string[];
-}
+export const postUserRoute = express.Router();
 
 interface ErrorBody {
   id?: string;
@@ -23,7 +16,7 @@ interface ErrorBody {
   email?: string;
 }
 
-userRouter.post('/user', async (req, res) => {
+postUserRoute.post('/user', async (req, res) => {
   if (
     !assertRequestType(req, res, {
       accept: ['application/json'],
@@ -76,22 +69,12 @@ userRouter.post('/user', async (req, res) => {
    * Return user.
    */
 
-  // Default to an empty list so we can still return the rest of the user in
-  // case the repositories are unavailable.
-  let topStarredRepositories: string[] = [];
-  try {
-    topStarredRepositories = await getTopStarredRepositories(username);
-  } catch (error) {
-    // TODO: Use structured logging.
-    console.log(error);
-  }
-
-  const user: User = {
+  const user: ResolvedUser = {
     id,
     username,
     email,
     profilePictureUrl: getProfilePictureUrl(email),
-    topStarredRepositories,
+    topStarredRepositories: await getTopStarredRepositories(username),
   };
 
   res.send(user);
