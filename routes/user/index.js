@@ -20,10 +20,18 @@ function initDatabase(params) {
     findUser: (id) => Users.find(user => user.id == id),
     removeUser: (id) => {
       const index = Users.findIndex(user => user.id == id)
-      if(index === -1){
+      if (index === -1) {
         return undefined
       }
       return Users.splice(index, 1)[0]
+    },
+    updateUser: (userChanges) => {
+      const dbUser = Users.find(user => user.id == userChanges.id)
+      if (!dbUser) {
+        return undefined
+      }
+      Object.assign(dbUser, userChanges)
+      return { ...dbUser }
     }
   }
 }
@@ -157,6 +165,29 @@ module.exports = async function (fastify, opts) {
       return fastify.httpErrors.notFound()
     }
     return dbUser
+  })
+
+  fastify.put('/', {
+    schema: {
+      body: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', format: "uuid" },
+          username: { type: 'string' },
+          email: { type: 'string', format: "email" },
+        },
+        required: ['id']
+      },
+      response: {
+        200: userSchema
+      }
+    }
+  }, async function (request, reply) {
+    const updatedUser = db.updateUser(request.body)
+    if (!updatedUser) {
+      return fastify.httpErrors.notFound()
+    }
+    return addTopStarredRepositories(updatedUser)
   })
 
 }
