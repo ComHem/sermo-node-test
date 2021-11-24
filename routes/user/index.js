@@ -17,7 +17,14 @@ function initDatabase(params) {
       Users.push(userToSave)
       return userToSave
     },
-    findUser: (id) => Users.find(user => user.id == id)
+    findUser: (id) => Users.find(user => user.id == id),
+    removeUser: (id) => {
+      const index = Users.findIndex(user => user.id == id)
+      if(index === -1){
+        return undefined
+      }
+      return Users.splice(index, 1)[0]
+    }
   }
 }
 
@@ -133,6 +140,23 @@ module.exports = async function (fastify, opts) {
     newUser.profilePictureUrl = getProfilePictureUrl(newUser.email)
     const savedUser = db.saveUser(newUser)
     return addTopStarredRepositories(savedUser)
+  })
+
+  fastify.delete('/:id', {
+    schema: {
+      params: {
+        id: { type: 'string', format: "uuid" }
+      },
+      response: {
+        200: { userSchema }
+      }
+    }
+  }, async function (request, reply) {
+    const dbUser = db.removeUser(request.params.id)
+    if (!dbUser) {
+      return fastify.httpErrors.notFound()
+    }
+    return dbUser
   })
 
 }
