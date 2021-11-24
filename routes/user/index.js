@@ -97,6 +97,22 @@ module.exports = async function (fastify, opts) {
     }
     return fullUsersPromise
   })
+  fastify.get('/:id', {
+    schema: {
+      params: {
+        id: { type: 'string', format: "uuid" }
+      },
+      response: {
+        200: userSchema
+      }
+    }
+  }, async function (request, reply) {
+    const dbUser = db.findUser(request.params.id)
+    if (!dbUser) {
+      return fastify.httpErrors.notFound()
+    }
+    return addTopStarredRepositories(dbUser)
+  })
 
   fastify.post('/', {
     schema: {
