@@ -5,7 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto')
 
 // in-memory database mock
-function initDatabase(params) {
+function initDatabase() {
   const Users = []
   return {
     getUsers: () => Users.map(user => ({ ...user })),
@@ -39,7 +39,7 @@ function initDatabase(params) {
 const db = initDatabase();
 const githubPerPage = 100;
 async function getAllRepos(username, startPageNumber = 1) {
-  const { data: repos, request } = await axios.get(`https://api.github.com/users/${username}/repos?per_page=${githubPerPage}`)
+  const { data: repos } = await axios.get(`https://api.github.com/users/${username}/repos?per_page=${githubPerPage}`)
   console.log(repos, `https://api.github.com/users/${username}/repos?per_page=${githubPerPage}`);
   if (repos.length < githubPerPage) {
     return repos
@@ -98,7 +98,7 @@ const userSchema = {
     },
   }
 }
-module.exports = async function (fastify, opts) {
+module.exports = async function (fastify) {
 
   fastify.get('/', {
     schema: {
@@ -112,13 +112,13 @@ module.exports = async function (fastify, opts) {
         }
       }
     }
-  }, async function (request, reply) {
+  }, async function (request) {
     const dbUsers = db.getUsers()
 
     const fullUsersPromise = addTopStarredRepositoriesToUsers(dbUsers)
 
     if (request.query.hasTopStarredRepositories) {
-      return await fullUsersPromise.filter(user => user.topStarredRepositories && topStarredRepositories.length)
+      return await fullUsersPromise.filter(user => user.topStarredRepositories && user.topStarredRepositories.length)
     }
     return fullUsersPromise
   })
@@ -131,7 +131,7 @@ module.exports = async function (fastify, opts) {
         200: userSchema
       }
     }
-  }, async function (request, reply) {
+  }, async function (request) {
     const dbUser = db.findUser(request.params.id)
     if (!dbUser) {
       return fastify.httpErrors.notFound()
@@ -153,7 +153,7 @@ module.exports = async function (fastify, opts) {
         200: userSchema
       }
     }
-  }, async function (request, reply) {
+  }, async function (request) {
     const newUser = request.body
     newUser.profilePictureUrl = getProfilePictureUrl(newUser.email)
     const savedUser = db.saveUser(newUser)
@@ -169,7 +169,7 @@ module.exports = async function (fastify, opts) {
         200: { userSchema }
       }
     }
-  }, async function (request, reply) {
+  }, async function (request) {
     const dbUser = db.removeUser(request.params.id)
     if (!dbUser) {
       return fastify.httpErrors.notFound()
@@ -192,7 +192,7 @@ module.exports = async function (fastify, opts) {
         200: userSchema
       }
     }
-  }, async function (request, reply) {
+  }, async function (request) {
     const updatedUser = db.updateUser(request.body)
     if (!updatedUser) {
       return fastify.httpErrors.notFound()
