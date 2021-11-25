@@ -37,14 +37,24 @@ function initDatabase(params) {
 }
 
 const db = initDatabase();
+const githubPerPage = 100;
+async function getAllRepos(username, startPageNumber = 1) {
+  const { data: repos, request } = await axios.get(`https://api.github.com/users/${username}/repos?per_page=${githubPerPage}`)
+  console.log(repos, `https://api.github.com/users/${username}/repos?per_page=${githubPerPage}`);
+  if (repos.length < githubPerPage) {
+    return repos
+  }
+  return [...repos, ...getAllRepos(username, startPageNumber + 1)]
+}
 
-async function getTopStarredRepositories(username) {
+async function getTopStarredRepositories(username, limit = 5) {
   if (!username) {
     return []
   }
   try {
-    const { data } = await axios.get('https://api.github.com/users/' + username + '/repos?sort=stargazers_count&per_page=5')
-    return data
+    const repos = await getAllRepos(username);
+    repos.sort((repoA, repoB) => repoB.stargazers_count - repoA.stargazers_count)
+    return repos.slice(0, limit)
 
   } catch (error) {
     if (error.response?.status) {
